@@ -314,8 +314,7 @@ img{display:block;max-width:100%}
   <!-- ナビゲーション -->
   <nav class="nav">
     <div class="nav-logo" id="nav-logo" onclick="go('home')">
-      <!-- ロゴ画像がある場合: <img src="assets/logo.png" alt="三連刻"> -->
-      三連刻
+      <img src="assets/logo.png" alt="三連刻" style="height:36px;width:auto">
     </div>
     <div class="nav-links">
       <button class="nav-btn" id="nb-home"    onclick="go('home')">ホーム</button>
@@ -330,8 +329,7 @@ img{display:block;max-width:100%}
 
   <!-- フッター -->
   <footer class="footer">
-    <!-- ロゴ画像がある場合: <img src="assets/logo.png" alt="三連刻" class="footer-logo"> -->
-    <div class="footer-logo">三連刻</div>
+    <img src="assets/logo.png" alt="三連刻" style="height:72px;width:auto;opacity:0.3;margin:0 auto;display:block">
   </footer>
 
 </div>
@@ -454,8 +452,7 @@ function renderHome(m) {
   m.innerHTML = `
     <div class="hero">
       <div class="fin1">
-        <!-- ロゴ画像がある場合: <img src="assets/logo.png" class="hero-logo-img" alt="三連刻"> -->
-        <div class="hero-logo-text">三連刻</div>
+        <img src="assets/logo.png" alt="三連刻" class="hero-logo-img" style="height:180px;width:auto;margin:0 auto 0.5rem;display:block">
         <div class="hero-en">SANRENKOU MAHJONG</div>
       </div>
       <div class="hero-live fin2">毎週水金曜日 20時〜 配信中！！</div>
@@ -596,8 +593,7 @@ function renderLogin(m) {
   m.innerHTML = `
     <div class="login-wrap">
       <div class="login-box fin1">
-        <!-- <img src="assets/logo.png" class="login-logo" alt="三連刻"> -->
-        <div class="login-logo">三連刻</div>
+        <img src="assets/logo.png" alt="三連刻" style="height:90px;width:auto;margin:0 auto 0.75rem;display:block">
         <div class="login-sub">ADMIN PANEL</div>
         <div class="login-badge">Discord OAuth2</div>
         <button class="btn btn-discord" onclick="discordLogin()">
