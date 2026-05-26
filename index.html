@@ -731,9 +731,36 @@ function renderAdminUpload(m) {
         <textarea id="json-input" placeholder="JSONを入力...">${sample}</textarea>
       </div>
       <div class="form-actions">
-        <button class="btn btn-fill" onclick="submitPlayerData()">更新する</button>
+        <button class="btn btn-fill" onclick="submitPlayerData()">データ更新</button>
         <button class="btn" onclick="formatJSON()">整形</button>
         <span id="upload-status"></span>
+      </div>
+    </div>
+
+    <div class="sec" style="margin-top:2rem">プレイヤー画像</div>
+    <div class="info-box">
+      プレイヤーIDに対応した画像をアップロードします。<br>
+      対応形式：<code>PNG</code> / <code>JPG</code>　推奨サイズ：正方形（例：400×400px）<br>
+      アップロードすると <code>assets/players/プレイヤーID.png</code> として保存されます。
+    </div>
+    <div class="form-card">
+      <div class="field">
+        <label>対象プレイヤー</label>
+        <select id="sel-img-player">
+          <option value="">── 選択してください ──</option>
+          ${playerOptions}
+        </select>
+      </div>
+      <div class="field">
+        <label>画像ファイル（PNG / JPG）</label>
+        <input type="file" id="img-file" accept="image/png,image/jpeg" onchange="previewImg()">
+      </div>
+      <div id="img-preview-wrap" style="display:none;margin-bottom:1rem">
+        <img id="img-preview" style="width:120px;height:120px;object-fit:cover;border-radius:6px;border:1px solid var(--border)">
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-fill" onclick="submitPlayerImage()">画像をアップロード</button>
+        <span id="img-status"></span>
       </div>
     </div>`;
 }
@@ -750,6 +777,17 @@ window.formatJSON = function() {
     const el = document.getElementById('json-input');
     el.value = JSON.stringify(JSON.parse(el.value), null, 2);
   } catch(e) {}
+};
+
+window.previewImg = function() {
+  const file = document.getElementById('img-file').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('img-preview').src = e.target.result;
+    document.getElementById('img-preview-wrap').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
 };
 
 window.submitPlayerData = async function() {
@@ -774,6 +812,42 @@ window.submitPlayerData = async function() {
     if (data.ok) {
       st.className='status-ok'; st.textContent='✓ 更新しました';
       await loadData();
+    } else {
+      st.className='status-err'; st.textContent='✗ エラー: ' + (data.error||'不明');
+    }
+  } catch(e) {
+    st.className='status-err'; st.textContent='✗ 通信エラー';
+  }
+};
+
+window.submitPlayerImage = async function() {
+  const st = document.getElementById('img-status');
+  const pid = document.getElementById('sel-img-player').value;
+  const file = document.getElementById('img-file').files[0];
+
+  if (!pid) { st.className='status-err'; st.textContent='✗ プレイヤーを選択してください'; return; }
+  if (!file) { st.className='status-err'; st.textContent='✗ 画像ファイルを選択してください'; return; }
+
+  st.textContent='アップロード中...';
+
+  try {
+    // FileをBase64に変換
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    const ext = file.type === 'image/jpeg' ? 'jpg' : 'png';
+    const res = await fetch(`${WORKER_URL}/api/upload-image`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${adminToken}` },
+      body: JSON.stringify({ playerId: pid, base64, ext })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      st.className='status-ok'; st.textContent='✓ アップロードしました';
     } else {
       st.className='status-err'; st.textContent='✗ エラー: ' + (data.error||'不明');
     }
