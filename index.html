@@ -314,8 +314,7 @@ img{display:block;max-width:100%}
   <!-- ナビゲーション -->
   <nav class="nav">
     <div class="nav-logo" id="nav-logo" onclick="go('home')">
-      <!-- ロゴ画像がある場合: <img src="assets/logo.png" alt="三連刻"> -->
-      三連刻
+      <img src="assets/logo.png" alt="三連刻">
     </div>
     <div class="nav-links">
       <button class="nav-btn" id="nb-home"    onclick="go('home')">ホーム</button>
@@ -330,8 +329,7 @@ img{display:block;max-width:100%}
 
   <!-- フッター -->
   <footer class="footer">
-    <!-- ロゴ画像がある場合: <img src="assets/logo.png" alt="三連刻" class="footer-logo"> -->
-    <div class="footer-logo">三連刻</div>
+    <img src="assets/logo.png" alt="三連刻" class="footer-logo">
   </footer>
 
 </div>
@@ -454,13 +452,12 @@ function renderHome(m) {
   m.innerHTML = `
     <div class="hero">
       <div class="fin1">
-        <!-- ロゴ画像がある場合: <img src="assets/logo.png" class="hero-logo-img" alt="三連刻"> -->
-        <div class="hero-logo-text">三連刻</div>
+        <img src="assets/logo.png" class="hero-logo-img" alt="三連刻">
         <div class="hero-en">SANRENKOU MAHJONG</div>
       </div>
       <div class="hero-live fin2">毎週水金曜日 20時〜 配信中！！</div>
       <div class="hero-cta fin3">
-        <button class="btn btn-fill" onclick="window.open('https://www.youtube.com/@your_channel','_blank')">
+        <button class="btn btn-fill" onclick="window.open('https://www.youtube.com/@VRC_SANRENKO','_blank')">
           ▶ 配信はこちら！
         </button>
       </div>
@@ -596,8 +593,7 @@ function renderLogin(m) {
   m.innerHTML = `
     <div class="login-wrap">
       <div class="login-box fin1">
-        <!-- <img src="assets/logo.png" class="login-logo" alt="三連刻"> -->
-        <div class="login-logo">三連刻</div>
+        <img src="assets/logo.png" class="login-logo" alt="三連刻">
         <div class="login-sub">ADMIN PANEL</div>
         <div class="login-badge">Discord OAuth2</div>
         <button class="btn btn-discord" onclick="discordLogin()">
