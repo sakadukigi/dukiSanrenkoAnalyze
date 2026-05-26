@@ -314,7 +314,8 @@ img{display:block;max-width:100%}
   <!-- ナビゲーション -->
   <nav class="nav">
     <div class="nav-logo" id="nav-logo" onclick="go('home')">
-      <img src="assets/logo.png" alt="三連刻">
+      <!-- ロゴ画像がある場合: <img src="assets/logo.png" alt="三連刻"> -->
+      三連刻
     </div>
     <div class="nav-links">
       <button class="nav-btn" id="nb-home"    onclick="go('home')">ホーム</button>
@@ -329,7 +330,8 @@ img{display:block;max-width:100%}
 
   <!-- フッター -->
   <footer class="footer">
-    <img src="assets/logo.png" alt="三連刻" class="footer-logo">
+    <!-- ロゴ画像がある場合: <img src="assets/logo.png" alt="三連刻" class="footer-logo"> -->
+    <div class="footer-logo">三連刻</div>
   </footer>
 
 </div>
@@ -338,8 +340,8 @@ img{display:block;max-width:100%}
 /* ═══════════════════════════════════════
    設定
 ═══════════════════════════════════════ */
-const WORKER_URL = "https://sanrenkou-worker.mmookesu-0203.workers.dev"; // ← デプロイ後に変更
-const DATA_BASE  = ""; // GitHub Pages の場合は空文字、サブディレクトリの場合は "/sanrenkou" 等
+const WORKER_URL = "https://sanrenkou-worker.YOUR_SUBDOMAIN.workers.dev"; // ← デプロイ後に変更
+const DATA_BASE  = "/dukiSanrenkoAnalyze"; // GitHub Pages の場合は空文字、サブディレクトリの場合は "/sanrenkou" 等
 
 /* ═══════════════════════════════════════
    状態
@@ -452,12 +454,13 @@ function renderHome(m) {
   m.innerHTML = `
     <div class="hero">
       <div class="fin1">
-        <img src="assets/logo.png" class="hero-logo-img" alt="三連刻">
+        <!-- ロゴ画像がある場合: <img src="assets/logo.png" class="hero-logo-img" alt="三連刻"> -->
+        <div class="hero-logo-text">三連刻</div>
         <div class="hero-en">SANRENKOU MAHJONG</div>
       </div>
       <div class="hero-live fin2">毎週水金曜日 20時〜 配信中！！</div>
       <div class="hero-cta fin3">
-        <button class="btn btn-fill" onclick="window.open('https://www.youtube.com/@VRC_SANRENKO','_blank')">
+        <button class="btn btn-fill" onclick="window.open('https://www.youtube.com/@your_channel','_blank')">
           ▶ 配信はこちら！
         </button>
       </div>
@@ -593,7 +596,8 @@ function renderLogin(m) {
   m.innerHTML = `
     <div class="login-wrap">
       <div class="login-box fin1">
-        <img src="assets/logo.png" class="login-logo" alt="三連刻">
+        <!-- <img src="assets/logo.png" class="login-logo" alt="三連刻"> -->
+        <div class="login-logo">三連刻</div>
         <div class="login-sub">ADMIN PANEL</div>
         <div class="login-badge">Discord OAuth2</div>
         <button class="btn btn-discord" onclick="discordLogin()">
