@@ -320,7 +320,6 @@ img{display:block;max-width:100%}
       <button class="nav-btn" id="nb-home"    onclick="go('home')">ホーム</button>
       <button class="nav-btn" id="nb-ranking" onclick="go('ranking')">ランキング</button>
       <button class="nav-btn" id="nb-players" onclick="go('players')">プレイヤー</button>
-      <button class="nav-btn admin-btn"        onclick="go('admin-login')">管理</button>
     </div>
   </nav>
 
@@ -330,6 +329,9 @@ img{display:block;max-width:100%}
   <!-- フッター -->
   <footer class="footer">
     <img src="assets/logo.png" alt="三連刻" style="height:72px;width:auto;opacity:0.3;margin:0 auto;display:block">
+    <div style="margin-top:1.5rem">
+      <span onclick="go('admin-login')" style="font-size:0.65rem;color:#333;cursor:pointer;letter-spacing:0.1em;user-select:none">管理者ページ</span>
+    </div>
   </footer>
 
 </div>
