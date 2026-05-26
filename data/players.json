@@ -1,0 +1,19 @@
+[
+  {
+    "id": "player1",
+    "name": "プレイヤー1",
+    "total_games": 0,
+    "seisan": 0,
+    "tsumo_count": 0,
+    "riichi": 0,
+    "furo": 0,
+    "furo_tenpai": 0,
+    "hora": 0,
+    "total_pts": 0,
+    "houjuu": 0,
+    "houjuu_pts": 0,
+    "ryukyoku": 0,
+    "furiten": 0,
+    "riichi_furiten": 0
+  }
+]

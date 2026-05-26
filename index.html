@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三連刻</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Zen+Antique+Soft&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   RESET & VARIABLES
+═══════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;--bg2:#111111;--bg3:#1a1a1a;--bg4:#222222;
+  --white:#ffffff;--gold:#c9a84c;--gold2:#e8c96a;--gold-dim:rgba(201,168,76,0.12);
+  --gray:#888888;--gray2:#555555;--gray3:#333333;
+  --border:rgba(255,255,255,0.10);--border2:rgba(255,255,255,0.05);
+  --red:#c0392b;--green:#27ae60;
+  --font:'Noto Sans JP',sans-serif;--font-deco:'Zen Antique Soft',serif;
+  --nav-h:56px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:var(--font);min-height:100vh;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font-family:var(--font)}
+img{display:block;max-width:100%}
+
+/* ═══════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════ */
+#app{display:flex;flex-direction:column;min-height:100vh}
+.page{flex:1;padding:2rem 1.5rem;max-width:1080px;width:100%;margin:0 auto}
+.page.wide{max-width:1280px}
+.hidden{display:none!important}
+
+/* ═══════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════ */
+.nav{
+  position:sticky;top:0;z-index:200;
+  background:rgba(10,10,10,0.96);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.5rem;height:var(--nav-h);
+}
+.nav-logo{
+  font-family:var(--font-deco);font-size:1.4rem;letter-spacing:0.12em;
+  color:var(--gold);cursor:pointer;user-select:none;
+  display:flex;align-items:center;gap:0.5rem;
+}
+.nav-logo img{height:32px;width:auto}
+.nav-links{display:flex;gap:4px}
+.nav-btn{
+  background:none;border:1px solid transparent;color:rgba(255,255,255,0.55);
+  font-size:0.83rem;padding:0.35rem 0.9rem;cursor:pointer;border-radius:4px;
+  transition:all 0.18s;letter-spacing:0.05em;white-space:nowrap;
+}
+.nav-btn:hover{color:var(--white);border-color:var(--border);background:rgba(255,255,255,0.04)}
+.nav-btn.active{color:var(--gold);border-color:rgba(201,168,76,0.45);background:var(--gold-dim)}
+.nav-btn.admin-btn{font-size:0.75rem;color:var(--gray2);margin-left:8px}
+.nav-btn.admin-btn:hover{color:var(--gray);border-color:var(--border)}
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+.footer{text-align:center;padding:2.5rem 1rem;border-top:1px solid var(--border2);margin-top:auto}
+.footer-logo{font-family:var(--font-deco);font-size:2rem;color:rgba(201,168,76,0.22);letter-spacing:0.3em}
+.footer-logo img{height:48px;width:auto;opacity:0.25;margin:0 auto}
+
+/* ═══════════════════════════════════════
+   SECTION TITLE
+═══════════════════════════════════════ */
+.sec{
+  font-size:0.68rem;letter-spacing:0.45em;color:var(--gold);
+  margin-bottom:1.25rem;padding-bottom:0.6rem;
+  border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;gap:0.75rem;
+}
+.sec::before{content:'';display:block;width:1.5rem;height:1px;background:var(--gold);flex-shrink:0}
+
+/* ═══════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;
+  border:1px solid var(--white);color:var(--white);background:none;
+  font-size:0.85rem;padding:0.55rem 1.4rem;border-radius:3px;cursor:pointer;
+  transition:all 0.2s;letter-spacing:0.07em;font-weight:500;
+}
+.btn:hover{background:rgba(255,255,255,0.07)}
+.btn-gold{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+.btn-gold:hover{background:rgba(201,168,76,0.22)}
+.btn-fill{background:var(--gold);border-color:var(--gold);color:#000;font-weight:700}
+.btn-fill:hover{background:var(--gold2);border-color:var(--gold2)}
+.btn-danger{border-color:var(--red);color:var(--red)}
+.btn-danger:hover{background:rgba(192,57,43,0.10)}
+.btn-sm{font-size:0.75rem;padding:0.32rem 0.8rem}
+.btn-discord{background:#5865F2;border-color:#5865F2;color:#fff;font-size:1rem;padding:0.75rem 2rem;border-radius:6px;gap:0.6rem}
+.btn-discord:hover{background:#4752C4;border-color:#4752C4}
+
+/* ═══════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.fin{animation:fadeUp 0.35s ease both}
+.fin1{animation:fadeUp 0.6s 0.05s ease both}
+.fin2{animation:fadeUp 0.6s 0.12s ease both}
+.fin3{animation:fadeUp 0.6s 0.19s ease both}
+.fin4{animation:fadeUp 0.6s 0.26s ease both}
+
+/* ═══════════════════════════════════════
+   HOME PAGE
+═══════════════════════════════════════ */
+.hero{text-align:center;padding:4rem 1rem 3rem;position:relative;overflow:hidden}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 70%);
+  pointer-events:none;
+}
+.hero-logo-img{height:120px;width:auto;margin:0 auto 0.5rem}
+.hero-logo-text{font-family:var(--font-deco);font-size:4.5rem;color:var(--white);letter-spacing:0.2em;line-height:1}
+.hero-en{font-size:0.65rem;letter-spacing:0.5em;color:var(--gold);margin:0.5rem 0 2.5rem}
+.hero-live{
+  font-size:1.5rem;font-weight:700;letter-spacing:0.04em;margin-bottom:1.75rem;
+  background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold));
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmer 3s linear infinite;
+}
+.hero-cta{margin-bottom:0}
+
+/* ── NEWS ── */
+.news-list{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:2.5rem}
+.ni{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:4px;
+  overflow:hidden;cursor:pointer;transition:border-color 0.2s;
+}
+.ni:hover{border-color:var(--border)}
+.ni-head{display:flex;align-items:center;gap:1rem;padding:0.85rem 1.2rem}
+.ni-date{font-size:0.72rem;color:var(--gray);min-width:135px;font-variant-numeric:tabular-nums;flex-shrink:0}
+.ni-title{flex:1;font-size:0.88rem;font-weight:500}
+.ni-arr{color:var(--gray);font-size:0.72rem;transition:transform 0.25s;flex-shrink:0}
+.ni.open .ni-arr{transform:rotate(180deg)}
+.ni-body{max-height:0;overflow:hidden;transition:max-height 0.3s ease}
+.ni.open .ni-body{max-height:300px}
+.ni-inner{padding:0.8rem 1.2rem 1rem;border-top:1px solid var(--border2);font-size:0.82rem;color:#ccc;line-height:1.9}
+
+/* ═══════════════════════════════════════
+   RANKING PAGE
+═══════════════════════════════════════ */
+.rank-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;margin-bottom:2rem}
+.rc{background:var(--bg2);border:1px solid var(--border2);border-radius:5px;overflow:hidden}
+.rc-title{padding:0.65rem 1rem;font-size:0.65rem;letter-spacing:0.35em;color:var(--gold);border-bottom:1px solid var(--border2)}
+.rr{
+  display:flex;align-items:center;gap:0.75rem;padding:0.65rem 1rem;
+  border-bottom:1px solid var(--border2);cursor:pointer;transition:background 0.15s;
+}
+.rr:last-child{border-bottom:none}
+.rr:hover{background:rgba(255,255,255,0.03)}
+.rr-num{font-size:1rem;font-weight:700;min-width:1.5rem;text-align:center}
+.rr-num.r1{color:#FFD700}.rr-num.r2{color:#C0C0C0}.rr-num.r3{color:#CD7F32}
+.rr-avatar{
+  width:34px;height:34px;border-radius:50%;
+  background:var(--bg3);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;flex-shrink:0;
+}
+.rr-avatar img{width:100%;height:100%;object-fit:cover}
+.rr-name{flex:1;font-size:0.87rem;font-weight:500}
+.rr-score{font-size:0.87rem;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums}
+
+/* ═══════════════════════════════════════
+   PLAYERS PAGE
+═══════════════════════════════════════ */
+.player-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1.25rem;margin-bottom:2rem}
+.pc{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:5px;
+  overflow:hidden;cursor:pointer;transition:all 0.2s;
+}
+.pc:hover{border-color:var(--border);transform:translateY(-3px)}
+.pc-img{
+  width:100%;aspect-ratio:1;background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;
+  border-bottom:1px solid var(--border2);overflow:hidden;
+}
+.pc-img img{width:100%;height:100%;object-fit:cover}
+.pc-img-placeholder{font-size:3rem;color:rgba(255,255,255,0.07)}
+.pc-info{padding:0.9rem}
+.pc-name{font-size:0.97rem;font-weight:700;margin-bottom:0.65rem}
+.pc-stats{display:grid;grid-template-columns:1fr 1fr;gap:3px}
+.ps{background:var(--bg3);border-radius:3px;padding:0.3rem 0.45rem}
+.ps.wide{grid-column:1/-1}
+.ps-label{font-size:0.6rem;color:var(--gray);letter-spacing:0.03em}
+.ps-val{font-size:0.8rem;font-weight:500;font-variant-numeric:tabular-nums}
+
+/* ═══════════════════════════════════════
+   PLAYER DETAIL PAGE
+═══════════════════════════════════════ */
+.detail-header{
+  display:flex;gap:2rem;align-items:flex-start;
+  margin-bottom:2rem;padding-bottom:1.75rem;border-bottom:1px solid var(--border2);
+}
+.detail-img{
+  width:140px;height:140px;background:var(--bg3);border-radius:6px;
+  border:1px solid var(--border);overflow:hidden;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.detail-img img{width:100%;height:100%;object-fit:cover}
+.detail-img-placeholder{font-size:3.5rem;color:rgba(255,255,255,0.07)}
+.detail-name{font-family:var(--font-deco);font-size:2.4rem;margin-bottom:0.3rem}
+.detail-sub{font-size:0.7rem;color:var(--gray);letter-spacing:0.2em}
+.detail-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:0.65rem}
+.ds{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;padding:0.65rem 0.9rem}
+.ds-label{font-size:0.66rem;color:var(--gray);margin-bottom:0.15rem;letter-spacing:0.04em}
+.ds-val{font-size:1rem;font-weight:700;font-variant-numeric:tabular-nums}
+.ds-val.gold{color:var(--gold)}
+
+/* ═══════════════════════════════════════
+   ADMIN LOGIN
+═══════════════════════════════════════ */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:65vh}
+.login-box{
+  background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+  padding:2.5rem;text-align:center;width:100%;max-width:380px;
+}
+.login-logo{font-family:var(--font-deco);font-size:2.5rem;color:var(--gold);margin-bottom:0.3rem}
+.login-logo img{height:56px;width:auto;margin:0 auto 0.5rem}
+.login-sub{font-size:0.7rem;letter-spacing:0.4em;color:var(--gray);margin-bottom:2rem}
+.login-badge{
+  display:inline-block;background:rgba(88,101,242,0.12);
+  border:1px solid rgba(88,101,242,0.3);color:#8b9cf4;
+  font-size:0.68rem;padding:0.2rem 0.6rem;border-radius:3px;margin-bottom:1.5rem;
+}
+.login-note{font-size:0.73rem;color:var(--gray);margin-top:1.25rem;line-height:1.75}
+.denied-box{text-align:center;padding:4rem 1rem}
+.denied-box h2{font-size:1.5rem;margin-bottom:1rem;color:var(--red)}
+.denied-box p{color:var(--gray);font-size:0.85rem;margin-bottom:2rem}
+
+/* ═══════════════════════════════════════
+   ADMIN PAGES
+═══════════════════════════════════════ */
+.admin-topbar{
+  background:var(--bg3);border:1px solid var(--border2);border-radius:5px;
+  padding:0.75rem 1rem;margin-bottom:2rem;
+  display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;
+}
+.admin-topbar-label{font-size:0.68rem;letter-spacing:0.3em;color:var(--gray);margin-right:0.25rem}
+.admin-topbar-user{font-size:0.78rem;color:var(--gray);margin-left:auto;display:flex;align-items:center;gap:0.5rem}
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
+.ac{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:5px;
+  padding:1.25rem;cursor:pointer;transition:all 0.2s;
+}
+.ac:hover{border-color:var(--border);background:var(--bg3)}
+.ac-icon{font-size:1.6rem;margin-bottom:0.75rem}
+.ac-title{font-size:0.9rem;font-weight:700;margin-bottom:0.3rem}
+.ac-desc{font-size:0.75rem;color:var(--gray);line-height:1.6}
+
+/* ── FORMS ── */
+.form-card{background:var(--bg2);border:1px solid var(--border2);border-radius:5px;padding:1.5rem;margin-bottom:1.5rem}
+.field{margin-bottom:1.2rem}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:0.7rem;letter-spacing:0.18em;color:var(--gold);margin-bottom:0.4rem}
+.field input,.field textarea,.field select{
+  width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--white);
+  font-family:var(--font);font-size:0.82rem;padding:0.6rem 0.8rem;border-radius:4px;
+  outline:none;transition:border-color 0.2s;resize:vertical;
+}
+.field textarea{min-height:200px;font-family:monospace;font-size:0.77rem;line-height:1.65}
+.field textarea.short{min-height:80px}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:rgba(201,168,76,0.5)}
+.field select option{background:var(--bg3)}
+.form-actions{display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;margin-top:1.25rem}
+.status-ok{font-size:0.8rem;color:var(--green)}
+.status-err{font-size:0.8rem;color:var(--red)}
+.info-box{
+  background:var(--bg3);border:1px solid var(--border2);border-radius:4px;
+  padding:0.9rem 1.1rem;margin-bottom:1.5rem;font-size:0.78rem;color:var(--gray);line-height:1.85;
+}
+.info-box code{
+  color:var(--gold);background:rgba(201,168,76,0.1);
+  padding:0.1rem 0.35rem;border-radius:2px;font-size:0.74rem;
+}
+
+/* ── NEWS EDITOR ── */
+.news-editor{background:var(--bg2);border:1px solid var(--border2);border-radius:5px;overflow:hidden;margin-bottom:0.6rem}
+.ne-head{display:flex;align-items:center;gap:1rem;padding:0.85rem 1.2rem}
+.ne-date{font-size:0.72rem;color:var(--gray);min-width:135px;flex-shrink:0}
+.ne-title{flex:1;font-size:0.86rem;font-weight:500}
+.ne-actions{display:flex;gap:0.4rem;flex-shrink:0}
+.ne-body{padding:0.8rem 1.2rem;border-top:1px solid var(--border2);font-size:0.8rem;color:#ccc;line-height:1.85}
+.ne-edit-area{padding:1rem 1.2rem;border-top:1px solid var(--border2);background:var(--bg3)}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media(max-width:600px){
+  .nav{padding:0 1rem}
+  .page{padding:1.25rem 1rem}
+  .hero-logo-text{font-size:3rem}
+  .hero-live{font-size:1.1rem}
+  .detail-header{flex-direction:column;gap:1rem}
+  .detail-img{width:100px;height:100px}
+  .detail-name{font-size:1.8rem}
+  .nav-btn{padding:0.3rem 0.6rem;font-size:0.78rem}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ナビゲーション -->
+  <nav class="nav">
+    <div class="nav-logo" id="nav-logo" onclick="go('home')">
+      <!-- ロゴ画像がある場合: <img src="assets/logo.png" alt="三連刻"> -->
+      三連刻
+    </div>
+    <div class="nav-links">
+      <button class="nav-btn" id="nb-home"    onclick="go('home')">ホーム</button>
+      <button class="nav-btn" id="nb-ranking" onclick="go('ranking')">ランキング</button>
+      <button class="nav-btn" id="nb-players" onclick="go('players')">プレイヤー</button>
+      <button class="nav-btn admin-btn"        onclick="go('admin-login')">管理</button>
+    </div>
+  </nav>
+
+  <!-- メインコンテンツ -->
+  <main id="main" class="page"></main>
+
+  <!-- フッター -->
+  <footer class="footer">
+    <!-- ロゴ画像がある場合: <img src="assets/logo.png" alt="三連刻" class="footer-logo"> -->
+    <div class="footer-logo">三連刻</div>
+  </footer>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   設定
+═══════════════════════════════════════ */
+const WORKER_URL = "https://sanrenkou-worker.mmookesu-0203.workers.dev"; // ← デプロイ後に変更
+const DATA_BASE  = ""; // GitHub Pages の場合は空文字、サブディレクトリの場合は "/sanrenkou" 等
+
+/* ═══════════════════════════════════════
+   状態
+═══════════════════════════════════════ */
+let PLAYERS = [];
+let NEWS    = [];
+let adminToken = null;
+let adminUser  = null;
+
+/* ═══════════════════════════════════════
+   データ読み込み
+═══════════════════════════════════════ */
+async function loadData() {
+  try {
+    const [pr, nr] = await Promise.all([
+      fetch(`${DATA_BASE}/data/players.json`),
+      fetch(`${DATA_BASE}/data/news.json`),
+    ]);
+    PLAYERS = await pr.json();
+    NEWS    = await nr.json();
+  } catch(e) {
+    console.error("データ読み込み失敗", e);
+  }
+}
+
+/* ═══════════════════════════════════════
+   統計計算
+═══════════════════════════════════════ */
+function calcStats(p) {
+  const g  = p.total_games || 0;
+  const t  = p.tsumo_count || 0;
+  const r  = p.riichi || 0;
+  const ft = p.furo_tenpai || 0;
+  const h  = p.hora || 0;
+  const hj = p.houjuu || 0;
+  const ry = p.ryukyoku || 0;
+  const fu = p.furiten || 0;
+  const rfu= p.riichi_furiten || 0;
+  const ankou = Math.max(0, t - r - ft);
+  const safe = (a,b) => b === 0 ? 0 : a/b;
+
+  return {
+    ...p,
+    futenpai          : g - t,
+    tsumo_rate        : (safe(t,g)*100).toFixed(1),
+    riichi_rate       : (safe(r,g)*100).toFixed(1),
+    riichi_tenpai_rate: (safe(r,t)*100).toFixed(1),
+    furo_rate         : (safe(p.furo||0,g)*100).toFixed(1),
+    furo_tenpai_rate  : (safe(ft,t)*100).toFixed(1),
+    ankou,
+    ankou_rate        : (safe(ankou,g)*100).toFixed(1),
+    ankou_tenpai_rate : (safe(ankou,t)*100).toFixed(1),
+    hora_rate         : (safe(h,g)*100).toFixed(1),
+    avg_pts           : safe(p.total_pts||0, h).toFixed(0),
+    avg_houjuu        : safe(p.houjuu_pts||0, hj).toFixed(0),
+    houjuu_rate       : (safe(hj,g)*100).toFixed(1),
+    ryukyoku_rate     : (safe(ry,g)*100).toFixed(1),
+    furiten_rate      : (safe(fu,t)*100).toFixed(1),
+    riichi_furiten_rate: (safe(rfu,r)*100).toFixed(1),
+  };
+}
+function calcAll() { return PLAYERS.map(calcStats); }
+
+/* ═══════════════════════════════════════
+   ルーティング
+═══════════════════════════════════════ */
+const NAV_MAP = {
+  home:'nb-home', ranking:'nb-ranking', players:'nb-players', detail:'nb-players'
+};
+
+function go(page, sub) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const nid = NAV_MAP[page];
+  if (nid) document.getElementById(nid)?.classList.add('active');
+
+  const m = document.getElementById('main');
+  m.className = 'page fin';
+
+  switch(page) {
+    case 'home':        renderHome(m); break;
+    case 'ranking':     renderRanking(m); break;
+    case 'players':     renderPlayers(m); break;
+    case 'detail':      renderDetail(m, sub); break;
+    case 'admin-login': renderLogin(m); break;
+    case 'admin-home':  renderAdminHome(m); break;
+    case 'admin-upload':renderAdminUpload(m); break;
+    case 'admin-info':  renderAdminInfo(m); break;
+    case 'denied':      renderDenied(m); break;
+  }
+}
+
+/* ═══════════════════════════════════════
+   HOME
+═══════════════════════════════════════ */
+function renderHome(m) {
+  const newsHTML = NEWS.length === 0
+    ? '<p style="color:var(--gray);font-size:0.82rem">お知らせはありません</p>'
+    : NEWS.map(n => `
+      <div class="ni" id="ni-${n.id}" onclick="toggleNews(${n.id})">
+        <div class="ni-head">
+          <span class="ni-date">${n.date}</span>
+          <span class="ni-title">${esc(n.title)}</span>
+          <span class="ni-arr">▾</span>
+        </div>
+        <div class="ni-body">
+          <div class="ni-inner">${esc(n.body).replace(/\n/g,'<br>')}</div>
+        </div>
+      </div>`).join('');
+
+  m.innerHTML = `
+    <div class="hero">
+      <div class="fin1">
+        <!-- ロゴ画像がある場合: <img src="assets/logo.png" class="hero-logo-img" alt="三連刻"> -->
+        <div class="hero-logo-text">三連刻</div>
+        <div class="hero-en">SANRENKOU MAHJONG</div>
+      </div>
+      <div class="hero-live fin2">毎週水金曜日 20時〜 配信中！！</div>
+      <div class="hero-cta fin3">
+        <button class="btn btn-fill" onclick="window.open('https://www.youtube.com/@your_channel','_blank')">
+          ▶ 配信はこちら！
+        </button>
+      </div>
+    </div>
+    <div class="sec fin4">お知らせ</div>
+    <div class="news-list fin4">${newsHTML}</div>`;
+}
+
+window.toggleNews = function(id) {
+  document.getElementById('ni-' + id)?.classList.toggle('open');
+};
+
+/* ═══════════════════════════════════════
+   RANKING
+═══════════════════════════════════════ */
+function renderRanking(m) {
+  const PD = calcAll();
+  const cats = [
+    {k:'seisan',    l:'清算点合計', f: v => num(v)+'点'},
+    {k:'total_pts', l:'合計打点',   f: v => num(v)+'点'},
+    {k:'avg_pts',   l:'平均打点',   f: v => num(v)+'点'},
+    {k:'riichi_rate',l:'立直率',    f: v => v+'%'},
+    {k:'hora_rate', l:'和了率',     f: v => v+'%'},
+    {k:'tsumo_rate',l:'聴牌率',     f: v => v+'%'},
+  ];
+  const cards = cats.map(cat => {
+    const sorted = [...PD].sort((a,b) => parseFloat(b[cat.k]||0) - parseFloat(a[cat.k]||0));
+    const rows = sorted.slice(0,3).map((p,i) => `
+      <div class="rr" onclick="go('detail','${p.id}')">
+        <span class="rr-num r${i+1}">${['🥇','🥈','🥉'][i]}</span>
+        <div class="rr-avatar">${playerAvatar(p,'small')}</div>
+        <span class="rr-name">${esc(p.name)}</span>
+        <span class="rr-score">${cat.f(p[cat.k]||0)}</span>
+      </div>`).join('');
+    return `<div class="rc"><div class="rc-title">${cat.l}</div>${rows}</div>`;
+  }).join('');
+  m.innerHTML = `<div class="sec">ランキング</div><div class="rank-grid">${cards}</div>`;
+}
+
+/* ═══════════════════════════════════════
+   PLAYERS
+═══════════════════════════════════════ */
+function renderPlayers(m) {
+  const PD = calcAll();
+  if (PD.length === 0) {
+    m.innerHTML = `<div class="sec">プレイヤー</div><p style="color:var(--gray)">プレイヤーデータがありません</p>`;
+    return;
+  }
+  const cards = PD.map(p => `
+    <div class="pc" onclick="go('detail','${p.id}')">
+      <div class="pc-img">${playerAvatar(p,'large')}</div>
+      <div class="pc-info">
+        <div class="pc-name">${esc(p.name)}</div>
+        <div class="pc-stats">
+          <div class="ps"><div class="ps-label">合計局数</div><div class="ps-val">${p.total_games}局</div></div>
+          <div class="ps"><div class="ps-label">清算点合計</div><div class="ps-val">${num(p.seisan)}</div></div>
+          <div class="ps"><div class="ps-label">立直率</div><div class="ps-val">${p.riichi_rate}%</div></div>
+          <div class="ps"><div class="ps-label">和了率</div><div class="ps-val">${p.hora_rate}%</div></div>
+          <div class="ps wide"><div class="ps-label">平均打点</div><div class="ps-val">${num(p.avg_pts)}点</div></div>
+        </div>
+      </div>
+    </div>`).join('');
+  m.innerHTML = `<div class="sec">プレイヤー</div><div class="player-grid">${cards}</div>`;
+}
+
+/* ═══════════════════════════════════════
+   PLAYER DETAIL
+═══════════════════════════════════════ */
+function renderDetail(m, pid) {
+  const PD = calcAll();
+  const p = PD.find(x => x.id === pid) || PD[0];
+  if (!p) { go('players'); return; }
+
+  const rows = [
+    ['合計局数',         p.total_games+'局',           false],
+    ['清算点合計',       num(p.seisan)+'点',            true ],
+    ['聴牌回数',         p.tsumo_count+'回',            false],
+    ['不聴回数',         p.futenpai+'回',               false],
+    ['聴牌率',           p.tsumo_rate+'%',              true ],
+    ['立直回数',         p.riichi+'回',                 false],
+    ['立直率',           p.riichi_rate+'%',             true ],
+    ['聴牌時立直率',     p.riichi_tenpai_rate+'%',      false],
+    ['副露回数',         (p.furo||0)+'回',              false],
+    ['副露率',           p.furo_rate+'%',               false],
+    ['聴牌時副露率',     p.furo_tenpai_rate+'%',        false],
+    ['闇聴回数',         p.ankou+'回',                  false],
+    ['闇聴率',           p.ankou_rate+'%',              false],
+    ['聴牌時闇聴率',     p.ankou_tenpai_rate+'%',       false],
+    ['和了回数',         (p.hora||0)+'回',              false],
+    ['和了率',           p.hora_rate+'%',               true ],
+    ['合計打点',         num(p.total_pts)+'点',         false],
+    ['平均打点',         num(p.avg_pts)+'点',           true ],
+    ['放銃回数',         (p.houjuu||0)+'回',            false],
+    ['放銃率',           p.houjuu_rate+'%',             false],
+    ['平均放銃点',       num(p.avg_houjuu)+'点',        false],
+    ['流局回数',         (p.ryukyoku||0)+'回',          false],
+    ['流局率',           p.ryukyoku_rate+'%',           false],
+    ['フリテン回数',     (p.furiten||0)+'回',           false],
+    ['聴牌時フリテン率', p.furiten_rate+'%',            false],
+    ['立直時フリテン率', p.riichi_furiten_rate+'%',     false],
+  ].map(([l,v,g]) => `
+    <div class="ds">
+      <div class="ds-label">${l}</div>
+      <div class="ds-val${g?' gold':''}">${v}</div>
+    </div>`).join('');
+
+  m.innerHTML = `
+    <button class="btn btn-sm" onclick="go('players')" style="margin-bottom:1.25rem">← プレイヤー一覧</button>
+    <div class="detail-header">
+      <div class="detail-img">${playerAvatar(p,'detail')}</div>
+      <div>
+        <div class="detail-name">${esc(p.name)}</div>
+        <div class="detail-sub">PLAYER DATA</div>
+      </div>
+    </div>
+    <div class="sec">詳細データ</div>
+    <div class="detail-stats">${rows}</div>`;
+}
+
+/* ═══════════════════════════════════════
+   ADMIN LOGIN
+═══════════════════════════════════════ */
+function renderLogin(m) {
+  // URLにトークンが付いてきた場合（Workerからのリダイレクト）
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+  if (token) {
+    verifyAdminToken(token);
+    window.history.replaceState({}, '', window.location.pathname);
+    return;
+  }
+
+  m.innerHTML = `
+    <div class="login-wrap">
+      <div class="login-box fin1">
+        <!-- <img src="assets/logo.png" class="login-logo" alt="三連刻"> -->
+        <div class="login-logo">三連刻</div>
+        <div class="login-sub">ADMIN PANEL</div>
+        <div class="login-badge">Discord OAuth2</div>
+        <button class="btn btn-discord" onclick="discordLogin()">
+          <svg width="20" height="20" viewBox="0 0 71 55" fill="none">
+            <path d="M60.1 4.9A58.5 58.5 0 0 0 45.4.9a40.7 40.7 0 0 0-1.8 3.7 54.1 54.1 0 0 0-16.2 0A40.7 40.7 0 0 0 25.6.9 58.4 58.4 0 0 0 10.8 4.9C1.6 18.7-1 32.2.3 45.5a58.9 58.9 0 0 0 17.9 9 44.3 44.3 0 0 0 3.8-6.2 38.4 38.4 0 0 1-6-2.9l1.5-1.1a42 42 0 0 0 35.9 0l1.5 1.1a38.4 38.4 0 0 1-6 2.9 44.3 44.3 0 0 0 3.8 6.2 58.7 58.7 0 0 0 17.9-9C72 29.7 68.4 16.3 60.1 4.9ZM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.1 0-3.9 2.8-7.1 6.4-7.1 3.6 0 6.5 3.2 6.4 7.1 0 4-2.8 7.1-6.4 7.1Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.1 0-3.9 2.8-7.1 6.4-7.1 3.6 0 6.5 3.2 6.4 7.1 0 4-2.8 7.1-6.4 7.1Z" fill="currentColor"/>
+          </svg>
+          Discordでログイン
+        </button>
+        <div class="login-note">ログインできるのは管理者として登録された<br>Discordアカウントのみです</div>
+      </div>
+    </div>`;
+}
+
+window.discordLogin = function() {
+  window.location.href = `${WORKER_URL}/auth/login`;
+};
+
+async function verifyAdminToken(token) {
+  try {
+    const res = await fetch(`${WORKER_URL}/auth/verify`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (data.ok) {
+      adminToken = token;
+      adminUser  = data.username;
+      sessionStorage.setItem('admin_token', token);
+      sessionStorage.setItem('admin_user', data.username);
+      go('admin-home');
+    } else {
+      go('denied');
+    }
+  } catch(e) {
+    go('admin-login');
+  }
+}
+
+function checkAdminSession() {
+  const t = sessionStorage.getItem('admin_token');
+  const u = sessionStorage.getItem('admin_user');
+  if (t && u) { adminToken = t; adminUser = u; return true; }
+  return false;
+}
+
+function requireAdmin(m) {
+  if (!adminToken && !checkAdminSession()) {
+    go('admin-login');
+    return false;
+  }
+  return true;
+}
+
+/* ═══════════════════════════════════════
+   ADMIN HOME
+═══════════════════════════════════════ */
+function renderAdminHome(m) {
+  if (!requireAdmin(m)) return;
+  m.innerHTML = `
+    <div class="sec">管理者パネル</div>
+    <div class="admin-topbar">
+      <span class="admin-topbar-label">ADMIN</span>
+      <button class="btn btn-gold btn-sm" onclick="go('admin-upload')">データ入力</button>
+      <button class="btn btn-gold btn-sm" onclick="go('admin-info')">サイト更新</button>
+      <button class="btn btn-sm" onclick="go('home')">サイトを見る</button>
+      <div class="admin-topbar-user">
+        <span>${esc(adminUser||'')} でログイン中</span>
+        <button class="btn btn-danger btn-sm" onclick="adminLogout()">ログアウト</button>
+      </div>
+    </div>
+    <div class="admin-grid">
+      <div class="ac" onclick="go('admin-upload')">
+        <div class="ac-icon">📊</div>
+        <div class="ac-title">データ入力</div>
+        <div class="ac-desc">プレイヤーの各種スタッツをJSON形式で更新します</div>
+      </div>
+      <div class="ac" onclick="go('admin-info')">
+        <div class="ac-icon">📝</div>
+        <div class="ac-title">サイト更新</div>
+        <div class="ac-desc">ホームのお知らせ・配信情報を管理します</div>
+      </div>
+      <div class="ac" onclick="go('home')">
+        <div class="ac-icon">🏠</div>
+        <div class="ac-title">サイトを見る</div>
+        <div class="ac-desc">一般向けサイトのホームに移動します</div>
+      </div>
+    </div>`;
+}
+
+window.adminLogout = function() {
+  adminToken = null; adminUser = null;
+  sessionStorage.removeItem('admin_token');
+  sessionStorage.removeItem('admin_user');
+  go('home');
+};
+
+/* ═══════════════════════════════════════
+   ADMIN UPLOAD
+═══════════════════════════════════════ */
+function renderAdminUpload(m) {
+  if (!requireAdmin(m)) return;
+
+  const sample = JSON.stringify({
+    id: "player_id",
+    name: "プレイヤー名",
+    total_games: 0, seisan: 0, tsumo_count: 0, riichi: 0,
+    furo: 0, furo_tenpai: 0, hora: 0, total_pts: 0,
+    houjuu: 0, houjuu_pts: 0, ryukyoku: 0, furiten: 0, riichi_furiten: 0
+  }, null, 2);
+
+  const playerOptions = PLAYERS.map(p =>
+    `<option value="${p.id}">${esc(p.name)}</option>`
+  ).join('');
+
+  m.innerHTML = `
+    <button class="btn btn-sm" onclick="go('admin-home')" style="margin-bottom:1.25rem">← 管理TOP</button>
+    <div class="sec">データ入力</div>
+    <div class="info-box">
+      JSON形式でプレイヤーデータを入力します。<code>id</code>が一致するプレイヤーは上書き、
+      新しい<code>id</code>の場合は新規追加されます。<br>
+      「更新する」を押すと GitHub API 経由で <code>data/players.json</code> が更新されます。
+    </div>
+    <div class="form-card">
+      <div class="field">
+        <label>プレイヤー選択（既存データを読み込む）</label>
+        <select id="sel-player" onchange="loadPlayerJSON()">
+          <option value="">── 選択してください ──</option>
+          ${playerOptions}
+          <option value="__new__">＋ 新規プレイヤーを追加</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>JSONデータ</label>
+        <textarea id="json-input" placeholder="JSONを入力...">${sample}</textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-fill" onclick="submitPlayerData()">更新する</button>
+        <button class="btn" onclick="formatJSON()">整形</button>
+        <span id="upload-status"></span>
+      </div>
+    </div>`;
+}
+
+window.loadPlayerJSON = function() {
+  const val = document.getElementById('sel-player').value;
+  if (!val || val === '__new__') return;
+  const p = PLAYERS.find(x => x.id === val);
+  if (p) document.getElementById('json-input').value = JSON.stringify(p, null, 2);
+};
+
+window.formatJSON = function() {
+  try {
+    const el = document.getElementById('json-input');
+    el.value = JSON.stringify(JSON.parse(el.value), null, 2);
+  } catch(e) {}
+};
+
+window.submitPlayerData = async function() {
+  const st = document.getElementById('upload-status');
+  let player;
+  try {
+    player = JSON.parse(document.getElementById('json-input').value);
+  } catch(e) {
+    st.className='status-err'; st.textContent='✗ JSONの形式が正しくありません'; return;
+  }
+  if (!player.id || !player.name) {
+    st.className='status-err'; st.textContent='✗ id と name は必須です'; return;
+  }
+  st.textContent='送信中...';
+  try {
+    const res = await fetch(`${WORKER_URL}/api/update`, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${adminToken}` },
+      body: JSON.stringify({ player })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      st.className='status-ok'; st.textContent='✓ 更新しました';
+      await loadData();
+    } else {
+      st.className='status-err'; st.textContent='✗ エラー: ' + (data.error||'不明');
+    }
+  } catch(e) {
+    st.className='status-err'; st.textContent='✗ 通信エラー';
+  }
+};
+
+/* ═══════════════════════════════════════
+   ADMIN INFO
+═══════════════════════════════════════ */
+function renderAdminInfo(m) {
+  if (!requireAdmin(m)) return;
+
+  const items = NEWS.map((n,i) => `
+    <div class="news-editor" id="ne-${n.id}">
+      <div class="ne-head">
+        <span class="ne-date">${esc(n.date)}</span>
+        <span class="ne-title">${esc(n.title)}</span>
+        <div class="ne-actions">
+          <button class="btn btn-gold btn-sm" onclick="openNewsEdit(${n.id})">編集</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteNews(${n.id})">削除</button>
+        </div>
+      </div>
+      <div class="ne-body">${esc(n.body).replace(/\n/g,'<br>')}</div>
+      <div class="ne-edit-area hidden" id="ne-edit-${n.id}"></div>
+    </div>`).join('');
+
+  m.innerHTML = `
+    <button class="btn btn-sm" onclick="go('admin-home')" style="margin-bottom:1.25rem">← 管理TOP</button>
+    <div class="sec">サイト更新 — お知らせ管理</div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
+      <button class="btn btn-fill" onclick="openNewsNew()">＋ 新規お知らせ追加</button>
+    </div>
+    <div id="news-new-area"></div>
+    <div id="news-list-admin">${items}</div>`;
+}
+
+window.openNewsNew = function() {
+  const area = document.getElementById('news-new-area');
+  area.innerHTML = `
+    <div class="form-card" style="margin-bottom:1rem">
+      <div class="sec">新規お知らせ</div>
+      <div class="field"><label>タイトル</label><input id="new-title" placeholder="タイトルを入力"></div>
+      <div class="field"><label>本文</label><textarea id="new-body" class="short" placeholder="本文を入力"></textarea></div>
+      <div class="form-actions">
+        <button class="btn btn-fill" onclick="saveNewNews()">追加する</button>
+        <button class="btn" onclick="document.getElementById('news-new-area').innerHTML=''">キャンセル</button>
+        <span id="new-status"></span>
+      </div>
+    </div>`;
+};
+
+window.saveNewNews = async function() {
+  const title = document.getElementById('new-title').value.trim();
+  const body  = document.getElementById('new-body').value.trim();
+  const st    = document.getElementById('new-status');
+  if (!title || !body) { st.className='status-err'; st.textContent='✗ タイトルと本文は必須です'; return; }
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const newItem = { id: Date.now(), date: dateStr, title, body };
+  NEWS.unshift(newItem);
+  await pushNews(st);
+  if (st.className === 'status-ok') renderAdminInfo(document.getElementById('main'));
+};
+
+window.openNewsEdit = function(id) {
+  const n = NEWS.find(x => x.id === id);
+  if (!n) return;
+  const area = document.getElementById(`ne-edit-${id}`);
+  area.classList.remove('hidden');
+  area.innerHTML = `
+    <div class="field"><label>タイトル</label><input id="et-${id}" value="${esc(n.title)}"></div>
+    <div class="field"><label>本文</label><textarea id="eb-${id}" class="short">${esc(n.body)}</textarea></div>
+    <div class="form-actions">
+      <button class="btn btn-fill" onclick="saveNewsEdit(${id})">保存</button>
+      <button class="btn" onclick="closeNewsEdit(${id})">キャンセル</button>
+      <span id="es-${id}"></span>
+    </div>`;
+};
+
+window.closeNewsEdit = function(id) {
+  document.getElementById(`ne-edit-${id}`)?.classList.add('hidden');
+};
+
+window.saveNewsEdit = async function(id) {
+  const title = document.getElementById(`et-${id}`).value.trim();
+  const body  = document.getElementById(`eb-${id}`).value.trim();
+  const st    = document.getElementById(`es-${id}`);
+  if (!title || !body) { st.className='status-err'; st.textContent='✗ 入力してください'; return; }
+  const idx = NEWS.findIndex(x => x.id === id);
+  if (idx >= 0) { NEWS[idx].title = title; NEWS[idx].body = body; }
+  await pushNews(st);
+  if (st.className === 'status-ok') renderAdminInfo(document.getElementById('main'));
+};
+
+window.deleteNews = async function(id) {
+  if (!confirm('このお知らせを削除しますか？')) return;
+  NEWS = NEWS.filter(x => x.id !== id);
+  const st = { className:'', textContent:'' };
+  await pushNews(st);
+  renderAdminInfo(document.getElementById('main'));
+};
+
+async function pushNews(st) {
+  st.textContent = '送信中...';
+  try {
+    const res = await fetch(`${WORKER_URL}/api/news`, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${adminToken}` },
+      body: JSON.stringify({ news: NEWS })
+    });
+    const data = await res.json();
+    if (data.ok) { st.className='status-ok'; st.textContent='✓ 更新しました'; }
+    else { st.className='status-err'; st.textContent='✗ エラー: '+(data.error||'不明'); }
+  } catch(e) {
+    st.className='status-err'; st.textContent='✗ 通信エラー';
+  }
+}
+
+/* ═══════════════════════════════════════
+   DENIED
+═══════════════════════════════════════ */
+function renderDenied(m) {
+  m.innerHTML = `
+    <div class="denied-box">
+      <h2>アクセス拒否</h2>
+      <p>このDiscordアカウントには管理者権限がありません。</p>
+      <button class="btn" onclick="go('home')">トップへ戻る</button>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════
+   ユーティリティ
+═══════════════════════════════════════ */
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function num(v) {
+  return Number(v||0).toLocaleString('ja-JP');
+}
+function playerAvatar(p, size) {
+  const imgSrc = `assets/players/${p.id}.png`;
+  if (size === 'small') {
+    return `<img src="${imgSrc}" alt="${esc(p.name)}" onerror="this.style.display='none'">`;
+  }
+  if (size === 'large') {
+    return `<img src="${imgSrc}" alt="${esc(p.name)}" onerror="this.parentElement.innerHTML='<span class=\\'pc-img-placeholder\\'>◈</span>'">`;
+  }
+  // detail
+  return `<img src="${imgSrc}" alt="${esc(p.name)}" onerror="this.parentElement.innerHTML='<span class=\\'detail-img-placeholder\\'>◈</span>'">`;
+}
+
+/* ═══════════════════════════════════════
+   起動
+═══════════════════════════════════════ */
+(async function init() {
+  await loadData();
+
+  // URLに ?token= が付いている場合（Discord OAuth リダイレクト後）
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+  if (token) {
+    window.history.replaceState({}, '', window.location.pathname);
+    await verifyAdminToken(token);
+    return;
+  }
+
+  // /admin/ でアクセスした場合
+  if (window.location.pathname.includes('/admin')) {
+    if (window.location.pathname.includes('denied')) {
+      go('denied');
+    } else if (checkAdminSession()) {
+      go('admin-home');
+    } else {
+      go('admin-login');
+    }
+    return;
+  }
+
+  go('home');
+})();
+</script>
+</body>
+</html>
