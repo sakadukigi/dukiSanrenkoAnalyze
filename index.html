@@ -355,8 +355,8 @@ let adminUser  = null;
 async function loadData() {
   try {
     const [pr, nr] = await Promise.all([
-      fetch(`${DATA_BASE}/data/players.json`),
-      fetch(`${DATA_BASE}/data/news.json`),
+      fetch(`${DATA_BASE}/data/players.json?t=${Date.now()}`),
+      fetch(`${DATA_BASE}/data/news.json?t=${Date.now()}`),
     ]);
     PLAYERS = await pr.json();
     NEWS    = await nr.json();
@@ -457,7 +457,7 @@ function renderHome(m) {
       </div>
       <div class="hero-live fin2">毎週水金曜日 20時〜 配信中！！</div>
       <div class="hero-cta fin3">
-        <button class="btn btn-fill" onclick="window.open('https://www.youtube.com/@your_channel','_blank')">
+        <button class="btn btn-fill" onclick="window.open('https://www.youtube.com/@VRC_SANRENKO','_blank')">
           ▶ 配信はこちら！
         </button>
       </div>
