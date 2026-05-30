@@ -314,7 +314,7 @@ img{display:block;max-width:100%}
   <!-- ナビゲーション -->
   <nav class="nav">
     <div class="nav-logo" id="nav-logo" onclick="go('home')">
-      <img src="assets/logo.png" alt="三連刻" style="height:36px;width:auto">
+      <img src="assets/logo.png" alt="三連刻" style="height:36px;width:auto" onerror="this.style.display='none'">
     </div>
     <div class="nav-links">
       <button class="nav-btn" id="nb-home"    onclick="go('home')">ホーム</button>
@@ -848,6 +848,12 @@ window.submitPlayerImage = async function() {
     const data = await res.json();
     if (data.ok) {
       st.className='status-ok'; st.textContent='✓ アップロードしました';
+      // プレビュー画像のキャッシュを更新
+      const preview = document.getElementById('img-preview');
+      if (preview && preview.src) {
+        const base = preview.src.split('?')[0];
+        preview.src = base + '?t=' + Date.now();
+      }
     } else {
       st.className='status-err'; st.textContent='✗ エラー: ' + (data.error||'不明');
     }
@@ -990,7 +996,7 @@ function num(v) {
   return Number(v||0).toLocaleString('ja-JP');
 }
 function playerAvatar(p, size) {
-  const imgSrc = `assets/players/${p.id}.png`;
+  const imgSrc = `${DATA_BASE}/assets/players/${p.id}.png?t=${Date.now()}`;
   if (size === 'small') {
     return `<img src="${imgSrc}" alt="${esc(p.name)}" onerror="this.style.display='none'">`;
   }
