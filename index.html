@@ -356,9 +356,10 @@ let adminUser  = null;
 ═══════════════════════════════════════ */
 async function loadData() {
   try {
+    const opt = { cache: 'no-store' };
     const [pr, nr] = await Promise.all([
-      fetch(`${DATA_BASE}/data/players.json?t=${Date.now()}`),
-      fetch(`${DATA_BASE}/data/news.json?t=${Date.now()}`),
+      fetch(`${DATA_BASE}/data/players.json?t=${Date.now()}`, opt),
+      fetch(`${DATA_BASE}/data/news.json?t=${Date.now()}`, opt),
     ]);
     PLAYERS = await pr.json();
     NEWS    = await nr.json();
@@ -616,7 +617,8 @@ window.discordLogin = function() {
 async function verifyAdminToken(token) {
   try {
     const res = await fetch(`${WORKER_URL}/auth/verify`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store'
     });
     const data = await res.json();
     if (data.ok) {
@@ -806,6 +808,7 @@ window.submitPlayerData = async function() {
     const res = await fetch(`${WORKER_URL}/api/update`, {
       method:'POST',
       headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${adminToken}` },
+      cache: 'no-store',
       body: JSON.stringify({ player })
     });
     const data = await res.json();
@@ -843,6 +846,7 @@ window.submitPlayerImage = async function() {
     const res = await fetch(`${WORKER_URL}/api/upload-image`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${adminToken}` },
+      cache: 'no-store',
       body: JSON.stringify({ playerId: pid, base64, ext })
     });
     const data = await res.json();
@@ -964,6 +968,7 @@ async function pushNews(st) {
     const res = await fetch(`${WORKER_URL}/api/news`, {
       method:'POST',
       headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${adminToken}` },
+      cache: 'no-store',
       body: JSON.stringify({ news: NEWS })
     });
     const data = await res.json();
