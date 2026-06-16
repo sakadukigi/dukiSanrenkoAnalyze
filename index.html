@@ -766,7 +766,13 @@ function renderAdminUpload(m) {
           プレイヤーデータを配列形式でまとめて入力します。<code>id</code>が一致するものは上書き、新規<code>id</code>は追加されます。
         </div>
         <div class="field">
-          <label>JSONデータ（配列形式）</label>
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.4rem">
+            <label style="margin-bottom:0">JSONデータ（配列形式）</label>
+            <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.72rem;color:var(--gray);cursor:pointer;letter-spacing:0.05em;margin-bottom:0">
+              <input type="checkbox" id="add-mode-batch" style="width:auto;accent-color:var(--gold)">
+              加算モード（既存値に加算する）
+            </label>
+          </div>
           <textarea id="json-batch" placeholder='[&#10;  { "id": "player1", "name": "...", ... },&#10;  { "id": "player2", "name": "...", ... }&#10;]'></textarea>
         </div>
       </div>
@@ -859,11 +865,26 @@ window.submitPlayerData = async function() {
 
   // ── 一括入力モード ──
   if (uploadMode === 'batch') {
-    let players;
-    try { players = JSON.parse(document.getElementById('json-batch').value); }
+    let inputPlayers;
+    try { inputPlayers = JSON.parse(document.getElementById('json-batch').value); }
     catch(e) { st.className='status-err'; st.textContent='✗ JSONの形式が正しくありません'; return; }
-    if (!Array.isArray(players)) { st.className='status-err'; st.textContent='✗ 配列形式で入力してください'; return; }
-    if (players.some(p => !p.id || !p.name)) { st.className='status-err'; st.textContent='✗ 各プレイヤーにidとnameが必要です'; return; }
+    if (!Array.isArray(inputPlayers)) { st.className='status-err'; st.textContent='✗ 配列形式で入力してください'; return; }
+    if (inputPlayers.some(p => !p.id || !p.name)) { st.className='status-err'; st.textContent='✗ 各プレイヤーにidとnameが必要です'; return; }
+
+    const addModeBatch = document.getElementById('add-mode-batch')?.checked;
+    let players = inputPlayers;
+    if (addModeBatch) {
+      players = inputPlayers.map(input => {
+        const existing = PLAYERS.find(p => p.id === input.id);
+        if (!existing) return input;
+        const merged = { ...input };
+        for (const f of numFields) {
+          merged[f] = (existing[f] || 0) + (input[f] || 0);
+        }
+        return merged;
+      });
+    }
+
     try {
       const res = await fetch(`${WORKER_URL}/api/update`, {
         method:'POST',
@@ -873,7 +894,8 @@ window.submitPlayerData = async function() {
       });
       const data = await res.json();
       if (data.ok) {
-        st.className='status-ok'; st.textContent=`✓ ${players.length}件を更新しました`;
+        st.className='status-ok';
+        st.textContent = addModeBatch ? `✓ ${players.length}件を加算して更新しました` : `✓ ${players.length}件を更新しました`;
         await loadData();
       } else { st.className='status-err'; st.textContent='✗ エラー: '+(data.error||'不明'); }
     } catch(e) { st.className='status-err'; st.textContent='✗ 通信エラー'; }
