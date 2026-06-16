@@ -418,6 +418,11 @@ function go(page, sub) {
   const nid = NAV_MAP[page];
   if (nid) document.getElementById(nid)?.classList.add('active');
 
+  // 管理ページのセッション保存
+  if (['admin-home','admin-upload','admin-info'].includes(page)) {
+    sessionStorage.setItem('adminLastPage', page);
+  }
+
   const m = document.getElementById('main');
   m.className = 'page fin';
 
@@ -458,7 +463,7 @@ function renderHome(m) {
         <img src="assets/logo.png" alt="三連刻" class="hero-logo-img" style="height:180px;width:auto;margin:0 auto 0.5rem;display:block">
         <div class="hero-en">SANRENKOU MAHJONG</div>
       </div>
-      <div class="hero-live fin2">毎週火金曜日 20時〜 配信中！！</div>
+      <div class="hero-live fin2">毎週火金曜日 21時～ 配信中！！</div>
       <div class="hero-cta fin3">
         <button class="btn btn-fill" onclick="window.open('https://www.youtube.com/@VRC_SANRENKO','_blank')">
           ▶ 配信はこちら！
@@ -626,7 +631,9 @@ async function verifyAdminToken(token) {
       adminUser  = data.username;
       sessionStorage.setItem('admin_token', token);
       sessionStorage.setItem('admin_user', data.username);
-      go('admin-home');
+      // 前回いたページに復元、なければダッシュボードへ
+      const lastPage = sessionStorage.getItem('adminLastPage') || 'admin-home';
+      go(lastPage);
     } else {
       go('denied');
     }
@@ -720,18 +727,44 @@ function renderAdminUpload(m) {
       「更新する」を押すと GitHub API 経由で <code>data/players.json</code> が更新されます。
     </div>
     <div class="form-card">
-      <div class="field">
-        <label>プレイヤー選択（既存データを読み込む）</label>
-        <select id="sel-player" onchange="loadPlayerJSON()">
-          <option value="">── 選択してください ──</option>
-          ${playerOptions}
-          <option value="__new__">＋ 新規プレイヤーを追加</option>
-        </select>
+      <div style="display:flex;gap:0.5rem;margin-bottom:1rem">
+        <button class="btn btn-sm" id="mode-single" onclick="setUploadMode('single')" style="border-color:var(--gold);color:var(--gold);background:var(--gold-dim)">単体入力</button>
+        <button class="btn btn-sm" id="mode-batch"  onclick="setUploadMode('batch')">一括入力</button>
       </div>
-      <div class="field">
-        <label>JSONデータ</label>
-        <textarea id="json-input" placeholder="JSONを入力...">${sample}</textarea>
+
+      <!-- 単体入力 -->
+      <div id="area-single">
+        <div class="field">
+          <label>プレイヤー選択（既存データを読み込む）</label>
+          <select id="sel-player" onchange="loadPlayerJSON()">
+            <option value="">── 選択してください ──</option>
+            ${playerOptions}
+            <option value="__new__">＋ 新規プレイヤーを追加</option>
+          </select>
+        </div>
+        <div class="field">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.4rem">
+            <label style="margin-bottom:0">JSONデータ</label>
+            <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.72rem;color:var(--gray);cursor:pointer;letter-spacing:0.05em;margin-bottom:0">
+              <input type="checkbox" id="add-mode" style="width:auto;accent-color:var(--gold)">
+              加算モード（既存値に加算する）
+            </label>
+          </div>
+          <textarea id="json-input" placeholder="JSONを入力...">${sample}</textarea>
+        </div>
       </div>
+
+      <!-- 一括入力 -->
+      <div id="area-batch" style="display:none">
+        <div class="info-box">
+          プレイヤーデータを配列形式でまとめて入力します。<code>id</code>が一致するものは上書き、新規<code>id</code>は追加されます。
+        </div>
+        <div class="field">
+          <label>JSONデータ（配列形式）</label>
+          <textarea id="json-batch" placeholder='[&#10;  { "id": "player1", "name": "...", ... },&#10;  { "id": "player2", "name": "...", ... }&#10;]'></textarea>
+        </div>
+      </div>
+
       <div class="form-actions">
         <button class="btn btn-fill" onclick="submitPlayerData()">データ更新</button>
         <button class="btn" onclick="formatJSON()">整形</button>
@@ -774,10 +807,29 @@ window.loadPlayerJSON = function() {
   if (p) document.getElementById('json-input').value = JSON.stringify(p, null, 2);
 };
 
+let uploadMode = 'single';
+
+window.setUploadMode = function(mode) {
+  uploadMode = mode;
+  document.getElementById('area-single').style.display = mode === 'single' ? '' : 'none';
+  document.getElementById('area-batch').style.display  = mode === 'batch'  ? '' : 'none';
+  document.getElementById('mode-single').style.cssText = mode === 'single'
+    ? 'border-color:var(--gold);color:var(--gold);background:var(--gold-dim)'
+    : '';
+  document.getElementById('mode-batch').style.cssText = mode === 'batch'
+    ? 'border-color:var(--gold);color:var(--gold);background:var(--gold-dim)'
+    : '';
+};
+
 window.formatJSON = function() {
   try {
-    const el = document.getElementById('json-input');
-    el.value = JSON.stringify(JSON.parse(el.value), null, 2);
+    if (uploadMode === 'batch') {
+      const el = document.getElementById('json-batch');
+      el.value = JSON.stringify(JSON.parse(el.value), null, 2);
+    } else {
+      const el = document.getElementById('json-input');
+      el.value = JSON.stringify(JSON.parse(el.value), null, 2);
+    }
   } catch(e) {}
 };
 
@@ -794,16 +846,52 @@ window.previewImg = function() {
 
 window.submitPlayerData = async function() {
   const st = document.getElementById('upload-status');
-  let player;
-  try {
-    player = JSON.parse(document.getElementById('json-input').value);
-  } catch(e) {
-    st.className='status-err'; st.textContent='✗ JSONの形式が正しくありません'; return;
+  st.textContent = '送信中...'; st.className = '';
+
+  const numFields = ['total_games','seisan','tsumo_count','riichi','furo','furo_tenpai',
+    'hora','total_pts','houjuu','houjuu_pts','ryukyoku','furiten','riichi_furiten'];
+
+  // ── 一括入力モード ──
+  if (uploadMode === 'batch') {
+    let players;
+    try { players = JSON.parse(document.getElementById('json-batch').value); }
+    catch(e) { st.className='status-err'; st.textContent='✗ JSONの形式が正しくありません'; return; }
+    if (!Array.isArray(players)) { st.className='status-err'; st.textContent='✗ 配列形式で入力してください'; return; }
+    if (players.some(p => !p.id || !p.name)) { st.className='status-err'; st.textContent='✗ 各プレイヤーにidとnameが必要です'; return; }
+    try {
+      const res = await fetch(`${WORKER_URL}/api/update`, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${adminToken}` },
+        cache: 'no-store',
+        body: JSON.stringify({ players })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        st.className='status-ok'; st.textContent=`✓ ${players.length}件を更新しました`;
+        await loadData();
+      } else { st.className='status-err'; st.textContent='✗ エラー: '+(data.error||'不明'); }
+    } catch(e) { st.className='status-err'; st.textContent='✗ 通信エラー'; }
+    return;
   }
-  if (!player.id || !player.name) {
-    st.className='status-err'; st.textContent='✗ id と name は必須です'; return;
+
+  // ── 単体入力モード ──
+  let input;
+  try { input = JSON.parse(document.getElementById('json-input').value); }
+  catch(e) { st.className='status-err'; st.textContent='✗ JSONの形式が正しくありません'; return; }
+  if (!input.id || !input.name) { st.className='status-err'; st.textContent='✗ id と name は必須です'; return; }
+
+  // 加算モード処理
+  let player = { ...input };
+  const addMode = document.getElementById('add-mode')?.checked;
+  if (addMode) {
+    const existing = PLAYERS.find(p => p.id === input.id);
+    if (existing) {
+      for (const f of numFields) {
+        player[f] = (existing[f] || 0) + (input[f] || 0);
+      }
+    }
   }
-  st.textContent='送信中...';
+
   try {
     const res = await fetch(`${WORKER_URL}/api/update`, {
       method:'POST',
@@ -813,14 +901,11 @@ window.submitPlayerData = async function() {
     });
     const data = await res.json();
     if (data.ok) {
-      st.className='status-ok'; st.textContent='✓ 更新しました';
+      st.className='status-ok';
+      st.textContent = addMode ? '✓ 加算して更新しました' : '✓ 更新しました';
       await loadData();
-    } else {
-      st.className='status-err'; st.textContent='✗ エラー: ' + (data.error||'不明');
-    }
-  } catch(e) {
-    st.className='status-err'; st.textContent='✗ 通信エラー';
-  }
+    } else { st.className='status-err'; st.textContent='✗ エラー: '+(data.error||'不明'); }
+  } catch(e) { st.className='status-err'; st.textContent='✗ 通信エラー'; }
 };
 
 window.submitPlayerImage = async function() {
