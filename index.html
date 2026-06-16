@@ -418,9 +418,15 @@ function go(page, sub) {
   const nid = NAV_MAP[page];
   if (nid) document.getElementById(nid)?.classList.add('active');
 
-  // 管理ページのセッション保存
+  // 管理ページのセッション保存（リログ後の復元用）
   if (['admin-home','admin-upload','admin-info'].includes(page)) {
     sessionStorage.setItem('adminLastPage', page);
+  }
+
+  // URLハッシュにページ状態を保存（リロード時の復元用）
+  const hash = sub ? `#${page}/${encodeURIComponent(sub)}` : `#${page}`;
+  if (window.location.hash !== hash) {
+    history.replaceState(null, '', hash);
   }
 
   const m = document.getElementById('main');
@@ -1112,7 +1118,18 @@ function playerAvatar(p, size) {
     return;
   }
 
-  // /admin/ でアクセスした場合
+  // URLハッシュからページ状態を復元（リロード対応）
+  if (window.location.hash) {
+    const hashContent = window.location.hash.slice(1);
+    const [hPage, hSub] = hashContent.split('/');
+    const validPages = ['home','ranking','players','detail','admin-login','admin-home','admin-upload','admin-info','denied'];
+    if (validPages.includes(hPage)) {
+      go(hPage, hSub ? decodeURIComponent(hSub) : undefined);
+      return;
+    }
+  }
+
+  // /admin/ でアクセスした場合（レガシー対応）
   if (window.location.pathname.includes('/admin')) {
     if (window.location.pathname.includes('denied')) {
       go('denied');
@@ -1126,6 +1143,16 @@ function playerAvatar(p, size) {
 
   go('home');
 })();
+
+// ブラウザの戻る/進むボタン対応
+window.addEventListener('hashchange', () => {
+  const hashContent = window.location.hash.slice(1);
+  const [hPage, hSub] = hashContent.split('/');
+  const validPages = ['home','ranking','players','detail','admin-login','admin-home','admin-upload','admin-info','denied'];
+  if (validPages.includes(hPage)) {
+    go(hPage, hSub ? decodeURIComponent(hSub) : undefined);
+  }
+});
 </script>
 </body>
 </html>
