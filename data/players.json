@@ -19,18 +19,18 @@
   {
     "id": "player2",
     "name": "Player2",
-    "total_games": 19998,
-    "seisan": 19998,
-    "tsumo_count": 200,
-    "riichi": 200,
-    "furo": 200,
-    "furo_tenpai": 200,
-    "hora": 2000,
-    "total_pts": 1998,
-    "houjuu": 200,
-    "houjuu_pts": 200,
-    "ryukyoku": 20,
-    "furiten": 2,
-    "riichi_furiten": 40
+    "total_games": 1,
+    "seisan": 2,
+    "tsumo_count": 3,
+    "riichi": 4,
+    "furo": 5,
+    "furo_tenpai": 6,
+    "hora": 7,
+    "total_pts": 8,
+    "houjuu": 9,
+    "houjuu_pts": 10,
+    "ryukyoku": 11,
+    "furiten": 12,
+    "riichi_furiten": 13
   }
 ]
